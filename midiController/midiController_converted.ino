@@ -51,7 +51,7 @@ void potisAbfragen(byte zaehler, int analogPin) {
   potiWert[zaehler] = 0.2 * potiWert[zaehler] + 0.8 * analogRead(analogPin);
   controllerWert[zaehler] = map(potiWert[zaehler],0,1023,0,127);
   if (controllerWert[zaehler] != controllerWertAlt[zaehler]) {
-    usbMIDI.sendControlChange(controlChange, controllerWert[count], (20 + count));
+    usbMIDI.sendControlChange(controlChange, controllerWert[zaehler], (20 + zaehler));
     controllerWertAlt[zaehler] = controllerWert[zaehler];
 
     //LED blinken lassen wenn Poti gedreht wird
@@ -62,9 +62,9 @@ void potisAbfragen(byte zaehler, int analogPin) {
     //Ausgabe für Debugging
     if (debug == true) {
       if (controllerWert[zaehler] != controllerWertAlt[zaehler]) {
-        Serial.print((20 + count));
+        Serial.print((20 + zaehler));
         Serial.print(" :    ");
-        Serial.print(controllerWert[count]);
+        Serial.print(controllerWert[zaehler]);
         Serial.println();
       }
     }
