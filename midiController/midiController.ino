@@ -35,9 +35,10 @@ void loop() {
     digitalWrite(4, bit3);
 
     potisAbfragen(i, A0);
-    //potisAbfragen(i+8,A1);    //zweiter Multiplexer
+    potisAbfragen(i+8,A1);    //zweiter Multiplexer
     //potisAbfragen(i+16,A2);   //dritter Multiplexer
   }
+  delay(1); //delay um floating values zu verhindern. bei bedarf erhöhen
 }
 
 void potisAbfragen(int count, int analogPin) {
