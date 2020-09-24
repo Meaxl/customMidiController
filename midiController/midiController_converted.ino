@@ -13,6 +13,16 @@ byte bit1 = 0;
 byte bit2 = 0;
 byte bit3 = 0;
 
+// POtIS
+const int NPots = 16; //*
+int potVar = 0; // Difference between the current and previous state of the pot
+int TIMEOUT = 300; //* Amount of time the potentiometer will be read after it exceeds the varThreshold
+int varThreshold = 6; //* Threshold for the potentiometer signal variation
+boolean potMoving = true; // If the potentiometer is moving
+unsigned long PTime[NPots] = {0}; // Previously stored time
+unsigned long timer[NPots] = {0}; // Stores the time that has elapsed since the timer was reset
+
+
 void setup() {
   //Select-Pins 4051s
   pinMode(2, OUTPUT);
@@ -41,14 +51,15 @@ void loop() {
     digitalWrite(4, bit3);
     
     potisAbfragen(i,A0);        //erster Multiplexer
-    //potisAbfragen(i+8,A1);    //zweiter Multiplexer
+    potisAbfragen(i+8,A1);    //zweiter Multiplexer
     //potisAbfragen(i+16,A2);   //dritter Multiplexer
   }
+  delay(5);
 }
 
 void potisAbfragen(byte zaehler, int analogPin) {
   //Formel um ein Poti abzufragen und die Messwerte zu glätten
-  potiWert[zaehler] = 0.2 * potiWert[zaehler] + 0.8 * analogRead(analogPin);
+  potiWert[zaehler] = 0.3 * potiWert[zaehler] + 0.7 * analogRead(analogPin);
   controllerWert[zaehler] = map(potiWert[zaehler],0,1023,0,127);
   if (controllerWert[zaehler] != controllerWertAlt[zaehler]) {
     usbMIDI.sendControlChange(controlChange, controllerWert[zaehler], (20 + zaehler));
