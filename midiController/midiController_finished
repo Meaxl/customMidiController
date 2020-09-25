@@ -1,0 +1,135 @@
+#include <analogmuxdemux.h>
+#include <StaticThreadController.h>
+#include <Thread.h>
+#include <ThreadController.h>
+
+//////////////////
+// MULTIPLEXERS //
+#define N_MUX 2 //* number of multiplexers
+//* Select Pins
+#define s0 2
+#define s1 3
+#define s2 4
+//* Analog (Input) Pins
+#define x1 A0
+#define x2 A1
+#define x3 A2
+#define x4 A3
+#define x5 A4
+
+//*Initialisieren der Multiplexer
+AnalogMux mux[N_MUX] = {
+  AnalogMux(s0, s1, s2, x1), 
+  AnalogMux(s0, s1, s2, x2),
+  AnalogMux(s0, s1, s2, x3),
+  AnalogMux(s0, s1, s2, x4),
+  AnalogMux(s0, s1, s2, x5)
+};
+
+//////////////////////
+// MIDI Information //
+byte MIDI_CH = 1; //* MIDI channel
+byte NOTE = 36; //* Lowest NOTE
+byte CC = 1; //* MIDI CC
+//////////////////////
+
+////////////////////
+// POTENTIOMETERS //
+const int N_POTS = 8 + 8 + 8 + 8 + 8; //* Gesamtzahl der Potis
+const int N_POTS_ARDUINO = 0; //* Anzahl der Potis die direkt am Arduino angeschlossen sind
+const int POT_ARDUINO_PIN[N_POTS_ARDUINO] = {}; //* Pins jedes Potis die direkt am Arduino angeschlossen sind
+
+const int N_POTS_PER_MUX[N_MUX] = {8, 8, 8, 8, 8}; //* Anzahl der Potis für jeden Multiplexer (in Reihe)
+const int POT_MUX_PIN[N_MUX][8] = { //* Pins jedes Potis an jedem Mux, in der Reihenfolge wie man sie möchte
+{0, 1, 2, 3, 4, 5, 6, 7}, //* Pins des ersten Mux
+{0, 1, 2, 3, 4, 5, 6, 7},
+{0, 1, 2, 3, 4, 5, 6, 7},
+{0, 1, 2, 3, 4, 5, 6, 7},
+{0, 1, 2, 3, 4, 5, 6, 7}
+};
+
+int potCState[N_POTS] = {0}; //* Aktueller Status des Potis
+int potPState[N_POTS] = {0}; //* Vorheriger Status des PotisPrevious state of the pot
+int potVar = 0; //* Unterschied zwischen aktuellen und vorherigen Stand des Potis
+
+int potMidiCState[N_POTS] = {0}; //* Aktueller Status der Midi Value
+int potMidiPState[N_POTS] = {0}; //* Vorheriger Status der Midi Value
+
+const int TIMEOUT = 300; //* Dauer an Zeit wie lange der Potis gelesen wird, nachdem varThreshold üerbschritten ist
+const int varThreshold = 10; //* Threshold für die Potentiometer Signalvariation
+boolean potMoving = true; // Wenn Potentiometer gedreht wird
+unsigned long PTime[N_POTS] = {0}; // Vorher gespeicherte Zeit
+unsigned long timer[N_POTS] = {0}; // Speichert die Zeit welche vergangen ist, seitdem der Timer resetet wurde
+
+ThreadController cpu; //* Thread master, andere werden hier hinzugefügt
+Thread threadPotentiometers; //* Thread um die Potis zu kontrollieren
+////////////////////
+
+void setup() {
+  pinMode(x1, INPUT_PULLUP); //* input_pullup - verhindere floating value
+  pinMode(x2, INPUT_PULLUP); //* analog inputs multiplexers
+  pinMode(x3, INPUT_PULLUP);
+  pinMode(x4, INPUT_PULLUP); 
+  pinMode(x5, INPUT_PULLUP); 
+
+  pinMode(13, OUTPUT); //* Teensy LED
+
+  Serial.begin(31250); //* 31250 Standard Midi Baud Rate | 115200 for Hairless MIDI
+
+  // THREADS
+  threadPotentiometers.setInterval(10); //* interval in millisekunden
+  threadPotentiometers.onRun(potentiometers); //* Funktion welche zum Thread hinzugefügt wird
+  cpu.add(&threadPotentiometers); //* alle Threads hier zusammenfügen
+}
+
+void loop() {
+  usbMIDI.read();
+  cpu.run(); //* für threads
+}
+
+void potentiometers() {
+  // reads the pins from arduino
+  for (int i = 0; i < N_POTS_ARDUINO; i++) {
+    potCState[i] = analogRead(POT_ARDUINO_PIN[i]);
+  }
+  
+  int nPotsPerMuxSum = N_POTS_ARDUINO; //* offsets the buttonCState at every mux reading
+
+  //* reads the pins from every mux
+    for (int j = 0; j < N_MUX; j++) {
+      for (int i = 0; i < N_POTS_PER_MUX[j]; i++) {
+        mux[j].SelectPin(POT_MUX_PIN[j][i]);
+        potCState[i + nPotsPerMuxSum] = mux[j].AnalogRead();
+      }
+      nPotsPerMuxSum += N_POTS_PER_MUX[j];
+    }
+
+    for (int i = 0; i < N_POTS; i++) { //* Loops through all the potentiometers
+      potMidiCState[i] = map(potCState[i], 0, 1023, 0, 127); //* Maps the reading of the potCState to a value usable in midi
+      potVar = abs(potCState[i] - potPState[i]); //* Calculates the absolute value between the difference between the current and previous state of the pot
+      if (potVar > varThreshold) { //* Opens the gate if the potentiometer variation is greater than the threshold
+        PTime[i] = millis(); //* Stores the previous time
+      }
+
+      timer[i] = millis() - PTime[i]; //* Resets the timer 11000 - 11000 = 0ms
+      if (timer[i] < TIMEOUT) { //* If the timer is less than the maximum allowed time it means that the potentiometer is still moving
+        potMoving = true;
+      }
+      else {
+        potMoving = false;
+      }
+
+      if (potMoving == true) { //* If the potentiometer is still moving, send the change control
+        if (potMidiPState[i] != potMidiCState[i]) {
+          usbMIDI.sendControlChange(CC + i, potMidiCState[i], MIDI_CH); //* CC number, CC value, midi channel
+
+          potPState[i] = potCState[i]; //* Stores the current reading of the potentiometer to compare with the next
+          potMidiPState[i] = potMidiCState[i];
+
+          digitalWrite(13, HIGH);
+          delay(5);
+          digitalWrite(13, LOW);
+        }
+      }
+    }    
+}
