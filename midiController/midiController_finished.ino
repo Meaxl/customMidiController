@@ -3,21 +3,22 @@
 #include <Thread.h>
 #include <ThreadController.h>
 
-//////////////////
-// MULTIPLEXERS //
-#define N_MUX 5 //* number of multiplexers
-//* Select Pins
-#define s0 2
-#define s1 3
-#define s2 4
-//* Analog (Input) Pins
-#define x1 A0
-#define x2 A1
-#define x3 A2
-#define x4 A3
-#define x5 A4
 
-//*Initialisieren der Multiplexer
+#define N_MUX 5 //* number of multiplexers
+#define s0 2 //* select pins of multiplexers
+#define s1 3 //*      "----"
+#define s2 4 //*      "----"
+#define x1 A0 //* analog pin of the first mux
+#define x2 A1 //* analog pin of the second mux
+#define x3 A2 //* analog pin of the thrid mux
+#define x4 A3 //* analog pin of the fourth mux
+#define x5 A4 //* analog pin of the fifth mux
+
+byte MIDI_CH = 1; //* MIDI channel to be used
+byte NOTE = 36; //* Lowest NOTE to be used
+byte CC = 1; //* Lowest MIDI CC to be used (176)
+
+// Initializes the multiplexer
 AnalogMux mux[N_MUX] = {
   AnalogMux(s0, s1, s2, x1), 
   AnalogMux(s0, s1, s2, x2),
@@ -26,65 +27,55 @@ AnalogMux mux[N_MUX] = {
   AnalogMux(s0, s1, s2, x5)
 };
 
-//////////////////////
-// MIDI Information //
-byte MIDI_CH = 1; //* MIDI channel
-byte NOTE = 36; //* Lowest NOTE
-byte CC = 1; //* MIDI CC
-//////////////////////
+const int N_POTS = 8 + 8 + 8 + 8 + 8; //* total numbers of pots
+const int N_POTS_ARDUINO = 0; //* number of pots connected straight to the Arduino
+const int POT_ARDUINO_PIN[N_POTS_ARDUINO] = {}; //* pins of each pot connected straight to the Arduino
 
-////////////////////
-// POTENTIOMETERS //
-const int N_POTS = 8 + 8 + 8 + 8 + 8; //* Gesamtzahl der Potis
-const int N_POTS_ARDUINO = 0; //* Anzahl der Potis die direkt am Arduino angeschlossen sind
-const int POT_ARDUINO_PIN[N_POTS_ARDUINO] = {}; //* Pins jedes Potis die direkt am Arduino angeschlossen sind
-
-const int N_POTS_PER_MUX[N_MUX] = {8, 8, 8, 8, 8}; //* Anzahl der Potis für jeden Multiplexer (in Reihe)
-const int POT_MUX_PIN[N_MUX][8] = { //* Pins jedes Potis an jedem Mux, in der Reihenfolge wie man sie möchte
-{0, 1, 2, 3, 4, 5, 6, 7}, //* Pins des ersten Mux
+const int N_POTS_PER_MUX[N_MUX] = {8, 8, 8, 8, 8}; //* number of pots in each multiplexer (in order)
+const int POT_MUX_PIN[N_MUX][8] = { //* pins of each pot of each mux in the order you want them to be
+{0, 1, 2, 3, 4, 5, 6, 7}, //* pins of the first mux
 {0, 1, 2, 3, 4, 5, 6, 7},
 {0, 1, 2, 3, 4, 5, 6, 7},
 {0, 1, 2, 3, 4, 5, 6, 7},
 {0, 1, 2, 3, 4, 5, 6, 7}
 };
 
-int potCState[N_POTS] = {0}; //* Aktueller Status des Potis
-int potPState[N_POTS] = {0}; //* Vorheriger Status des PotisPrevious state of the pot
-int potVar = 0; //* Unterschied zwischen aktuellen und vorherigen Stand des Potis
+int potCState[N_POTS] = {0}; //* Current state of the pot
+int potPState[N_POTS] = {0}; //* Previous state of the pot
+int potVar = 0; //* Difference between the current and previous state of the pot
 
-int potMidiCState[N_POTS] = {0}; //* Aktueller Status der Midi Value
-int potMidiPState[N_POTS] = {0}; //* Vorheriger Status der Midi Value
+int potMidiCState[N_POTS] = {0}; //* Current state of the midi value
+int potMidiPState[N_POTS] = {0}; //* Previous state of the midi value
 
-const int TIMEOUT = 300; //* Dauer an Zeit wie lange der Potis gelesen wird, nachdem varThreshold üerbschritten ist
-const int varThreshold = 10; //* Threshold für die Potentiometer Signalvariation
-boolean potMoving = true; // Wenn Potentiometer gedreht wird
-unsigned long PTime[N_POTS] = {0}; // Vorher gespeicherte Zeit
-unsigned long timer[N_POTS] = {0}; // Speichert die Zeit welche vergangen ist, seitdem der Timer resetet wurde
+const int TIMEOUT = 300; //* Amount of time the potentiometer will be read after it exceeds the varThreshold
+const int varThreshold = 10; //* Threshold for the potentiometer signal variation
+boolean potMoving = true; // If the potentiometer is moving
+unsigned long PTime[N_POTS] = {0}; // Previously stored time
+unsigned long timer[N_POTS] = {0}; // Stores the time that has elapsed since the timer was reset
 
-ThreadController cpu; //* Thread master, andere werden hier hinzugefügt
-Thread threadPotentiometers; //* Thread um die Potis zu kontrollieren
-////////////////////
+ThreadController cpu; //* thread master, where the other threads will be added
+Thread threadPotentiometers; //* thread to control the pots
 
 void setup() {
-  pinMode(x1, INPUT_PULLUP); //* input_pullup - verhindere floating value
-  pinMode(x2, INPUT_PULLUP); //* analog inputs multiplexers
+  pinMode(x1, INPUT_PULLUP); //* set each pin at input_pullup - avoid floating value
+  pinMode(x2, INPUT_PULLUP); //* analog inputs of multiplexers
   pinMode(x3, INPUT_PULLUP);
-  pinMode(x4, INPUT_PULLUP); 
-  pinMode(x5, INPUT_PULLUP); 
-
+  pinMode(x4, INPUT_PULLUP); //* analog inputs of multiplexers
+  pinMode(x5, INPUT_PULLUP); //* analog inputs of multiplexers
+  
   pinMode(13, OUTPUT); //* Teensy LED
 
   Serial.begin(31250); //* 31250 Standard Midi Baud Rate | 115200 for Hairless MIDI
 
   // THREADS
-  threadPotentiometers.setInterval(10); //* interval in millisekunden
-  threadPotentiometers.onRun(potentiometers); //* Funktion welche zum Thread hinzugefügt wird
-  cpu.add(&threadPotentiometers); //* alle Threads hier zusammenfügen
+  threadPotentiometers.setInterval(10); //* every how many millisiconds
+  threadPotentiometers.onRun(potentiometers); //* the function that will be added to the thread
+  cpu.add(&threadPotentiometers); //* add every thread here
 }
 
 void loop() {
   usbMIDI.read();
-  cpu.run(); //* für threads
+  cpu.run(); //* for threads
 }
 
 void potentiometers() {
