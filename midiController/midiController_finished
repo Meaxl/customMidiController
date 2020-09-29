@@ -5,7 +5,7 @@
 
 //////////////////
 // MULTIPLEXERS //
-#define N_MUX 2 //* number of multiplexers
+#define N_MUX 5 //* number of multiplexers
 //* Select Pins
 #define s0 2
 #define s1 3
