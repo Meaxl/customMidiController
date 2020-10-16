@@ -1,4 +1,5 @@
-# Arduino Midi Controller
+Arduino Midi Controller
+======================
 Trying to build my own custom Midi Controller. Code and any further documentation can be found here.
 
 Features
