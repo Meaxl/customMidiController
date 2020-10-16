@@ -25,8 +25,10 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
 - **Easily customizable, extandable**.
 
 <a name="requirements"></a>
-### 2. Requirements
-   <a name="software"></a>
-   ### 1. Software/Operating System (OS)
-- OSX, Windows, Linux
-- latest [Arduino IDE](https://www.arduino.cc/en/Main/software) + [Teensy Loader Applicatoin](https://www.pjrc.com/teensy/loader.html)
+2. **Requirements**
+======================
+<a name="software"></a>
+   1. Software/Operating System (OS)
+      - OSX, Windows, Linux
+      - latest [Arduino IDE](https://www.arduino.cc/en/Main/software) + [Teensy Loader Applicatoin](https://www.pjrc.com/teensy/loader.html)
+   
