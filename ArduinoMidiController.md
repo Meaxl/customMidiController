@@ -46,6 +46,7 @@ potentiometers). However it is relatively simple to add one or several
 multiplexers to extend the capabilities (8 entries mapped to 1 entry, i.e. up to 
 48 analog entries).
 
+-------------------
 <a name="features"></a>
 ### 1. Features
 - **Cheap to build** : use directly a standalone Arduino Teensy microcontroller ;
