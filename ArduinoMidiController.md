@@ -1,21 +1,7 @@
 Arduino Midi Controller
 ======================
 ##### Information about the process:
-The general architecture is shown below. The core of the controller is an Atmega
-chip. A special bootloader is used to allow the chip to be reprogrammed directly
-through USB. The user program can also communicate with the computer directly 
-through USB, and actually be recognized as any USB device you would like,
-including HID (Human Interface Device), and in our case, a MIDI controller. You
-can then interface your controller with any music software speaking MIDI.
-
-On the Atmega chip, potentiometers and switches can be connected, and mapped in 
-the software to generate corresponding MIDI signals (control, notes, play/pause, 
-...). 
-
-Note that the Atmega alone accepts only 6 analog entries (i.e. needed to interface 
-potentiometers). However it is relatively simple to add one or several
-multiplexers to extend the capabilities (8 entries mapped to 1 entry, i.e. up to 
-48 analog entries).
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
 1. [Features](#features)
 2. [Requirements](#requirements)
@@ -30,22 +16,6 @@ multiplexers to extend the capabilities (8 entries mapped to 1 entry, i.e. up to
    3. [Flashing the code](#code)
 4. [Credits](#credits)
 
-The general architecture is shown below. The core of the controller is an Atmega
-chip. A special bootloader is used to allow the chip to be reprogrammed directly
-through USB. The user program can also communicate with the computer directly 
-through USB, and actually be recognized as any USB device you would like,
-including HID (Human Interface Device), and in our case, a MIDI controller. You
-can then interface your controller with any music software speaking MIDI.
-
-On the Atmega chip, potentiometers and switches can be connected, and mapped in 
-the software to generate corresponding MIDI signals (control, notes, play/pause, 
-...). 
-
-Note that the Atmega alone accepts only 6 analog entries (i.e. needed to interface 
-potentiometers). However it is relatively simple to add one or several
-multiplexers to extend the capabilities (8 entries mapped to 1 entry, i.e. up to 
-48 analog entries).
-
 -------------------
 <a name="features"></a>
 ### 1. Features
@@ -53,3 +23,10 @@ multiplexers to extend the capabilities (8 entries mapped to 1 entry, i.e. up to
 - **Plug-and-play** : detected as an actual MIDI device ;
 - **Easy reprogram through USB** : using the USB connection, you can enter a mode to reprogram via Arduino Software ;
 - **Easily customizable, extandable**.
+
+<a name="requirements"></a>
+### 2. Requirements
+   <a name="software"></a>
+   ### 1. Software/Operating System (OS)
+- OSX, Windows, Linux
+- latest [Arduino IDE](https://www.arduino.cc/en/Main/software) + [Teensy Loader Applicatoin](https://www.pjrc.com/teensy/loader.html)
