@@ -47,7 +47,9 @@ The USB spec actually requires these 4 wire colors, with this assignment to the 
 - pin 4, GND, Black
 
 ### The Core
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et
+The whole construction uses one part as its main component and thats the Teensy. To get enough analog inputs I will use the *74HC4051 Mux*. Per Mux we gain 8 additional analog inputs. There are also some Shiftregisters, 16x Mux, etc. but for this Midicontroller i decided for this ones. At the beginning i was laying out the principial logic for the use of these components on a breadboard. Later on i'll replace it with a proper PCB.
+![Schematic for Teensy + Mux](https://raw.githubusercontent.com/Meaxl/customMidiController/b11f5fe3154a61964d7c11e2af461ba269272206/documentation/schematics/schematic.svg)
+
 
 <a name="credits"></a>
 ## 4. Credits
