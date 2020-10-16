@@ -1,7 +1,5 @@
 Arduino Midi Controller
 ======================
-##### Information about the process:
-
 1. [Features](#features)
 2. [Requirements (Software/OS)](#software)
 3. [Shopping the Hardware](#hardware)
