@@ -48,7 +48,6 @@ multiplexers to extend the capabilities (8 entries mapped to 1 entry, i.e. up to
 
 <a name="features"></a>
 ### 1. Features
-======================
 - **Cheap to build** : use directly a standalone Arduino Teensy microcontroller ;
 - **Plug-and-play** : detected as an actual MIDI device ;
 - **Easy reprogram through USB** : using the USB connection, you can enter a mode to reprogram via Arduino Software ;
