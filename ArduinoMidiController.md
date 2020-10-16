@@ -25,8 +25,7 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
 - **Easily customizable, extandable**.
 
 <a name="requirements"></a>
-2. **Requirements**
-
+2. Requirements
 <a name="software"></a>
    1. Software/Operating System (OS)
       - OSX, Windows, Linux
