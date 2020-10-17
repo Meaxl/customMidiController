@@ -1,1 +1,39 @@
-[{"id":0,"type":"script","name":"DREHBANK 40","script_id":2,"global_feedback":"default","global_feedback_active":"True","global_LED_on":"127","global_LED_off":"0","script_attach_id":"3","LED_mapping_type_needs_feedback":false,"file_name":"2_script.json","has_child":-1},{"level":0,"has_child":1,"id":1,"type":{"id":0,"type":"Mode","parent":null,"has_child":-1,"level":0,"icon":"fa-layer-group"},"parent_id":0,"name":"Mode 1","LED_feedback":"custom","LED_mapping_type_needs_feedback":false,"LED_feedback_active":false,"LED_on":127,"LED_off":0,"LED_send_feedback_to_selected":[]}]
+[
+   {
+      "id":0,
+      "type":"script",
+      "name":"DREHBANK 40",
+      "script_id":2,
+      "global_feedback":"default",
+      "global_feedback_active":"True",
+      "global_LED_on":"127",
+      "global_LED_off":"0",
+      "script_attach_id":"3",
+      "LED_mapping_type_needs_feedback":false,
+      "file_name":"2_script.json",
+      "has_child":-1
+   },
+   {
+      "level":0,
+      "has_child":1,
+      "id":1,
+      "type":{
+         "id":0,
+         "type":"Mode",
+         "parent":null,
+         "has_child":-1,
+         "level":0,
+         "icon":"fa-layer-group"
+      },
+      "parent_id":0,
+      "name":"Mode 1",
+      "LED_feedback":"custom",
+      "LED_mapping_type_needs_feedback":false,
+      "LED_feedback_active":false,
+      "LED_on":127,
+      "LED_off":0,
+      "LED_send_feedback_to_selected":[
+         
+      ]
+   }
+]
