@@ -28,8 +28,6 @@ AnalogMux mux[N_MUX] = {
 };
 
 const int N_POTS = 8 + 8 + 8 + 8 + 8; //* total numbers of pots
-const int N_POTS_ARDUINO = 0; //* number of pots connected straight to the Arduino
-const int POT_ARDUINO_PIN[N_POTS_ARDUINO] = {}; //* pins of each pot connected straight to the Arduino
 
 const int N_POTS_PER_MUX[N_MUX] = {8, 8, 8, 8, 8}; //* number of pots in each multiplexer (in order)
 const int POT_MUX_PIN[N_MUX][8] = { //* pins of each pot of each mux in the order you want them to be
@@ -48,7 +46,7 @@ int potMidiCState[N_POTS] = {0}; //* Current state of the midi value
 int potMidiPState[N_POTS] = {0}; //* Previous state of the midi value
 
 const int TIMEOUT = 300; //* Amount of time the potentiometer will be read after it exceeds the varThreshold
-const int varThreshold = 20; //* Threshold for the potentiometer signal variation
+const int varThreshold = 30; //* Threshold for the potentiometer signal variation
 boolean potMoving = true; // If the potentiometer is moving
 unsigned long PTime[N_POTS] = {0}; // Previously stored time
 unsigned long timer[N_POTS] = {0}; // Stores the time that has elapsed since the timer was reset
@@ -59,10 +57,13 @@ Thread threadPotentiometers; //* thread to control the pots
 void setup() {
   pinMode(x1, INPUT_PULLUP); //* set each pin at input_pullup - avoid floating value
   pinMode(x2, INPUT_PULLUP); //* analog inputs of multiplexers
-  pinMode(x3, INPUT_PULLUP);
+  pinMode(x3, INPUT_PULLUP); //* analog inputs of multiplexers
   pinMode(x4, INPUT_PULLUP); //* analog inputs of multiplexers
   pinMode(x5, INPUT_PULLUP); //* analog inputs of multiplexers
-  
+
+  /*pinMode(s0, OUTPUT);
+  pinMode(s1, OUTPUT);
+  pinMode(s2, OUTPUT);*/
   pinMode(13, OUTPUT); //* Teensy LED
 
   Serial.begin(31250); //* 31250 Standard Midi Baud Rate | 115200 for Hairless MIDI
@@ -79,12 +80,7 @@ void loop() {
 }
 
 void potentiometers() {
-  // reads the pins from arduino
-  for (int i = 0; i < N_POTS_ARDUINO; i++) {
-    potCState[i] = analogRead(POT_ARDUINO_PIN[i]);
-  }
-  
-  int nPotsPerMuxSum = N_POTS_ARDUINO; //* offsets the buttonCState at every mux reading
+  int nPotsPerMuxSum = 0; //* offsets the buttonCState at every mux reading
 
   //* reads the pins from every mux
     for (int j = 0; j < N_MUX; j++) {
@@ -116,6 +112,18 @@ void potentiometers() {
 
           potPState[i] = potCState[i]; //* Stores the current reading of the potentiometer to compare with the next
           potMidiPState[i] = potMidiCState[i];
+           
+           // Output Poti states to serial monitor
+           /*Serial.print("Pot: ");
+           Serial.print(i);
+           Serial.print("  |  ch: ");
+           Serial.print(MIDI_CH);
+           Serial.print("  |  cc: ");
+           Serial.print(CC + i);
+           Serial.print("  |  value: ");
+           Serial.print(potMidiCState[i]);
+           Serial.print("  |  raw: ");
+           Serial.println(potCState[i]);*/
 
           digitalWrite(13, HIGH);
           delay(5);
